@@ -1,9 +1,7 @@
 %Call the power method with teleportation.
-function x = power_with_teleport(filename)
-    A = load(filename, '-ascii');
+function x = power_with_teleport(A, num)
     i = A(:,1);
     j = A(:,2);
-    num = 1490;
 
     G = sparse(i,j,1,num,num);
     c = full(sum(G));

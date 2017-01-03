@@ -1,9 +1,7 @@
 %Call the eigenvalue solver without teleportation.
-function x = eigensolver_without_teleport(filename)
-    A = load(filename, '-ascii');
+function x = eigensolver_without_teleport(A, num)
     i = A(:,1);
     j = A(:,2);
-    num = 1490;
 
     G = sparse(i,j,1,num,num);
     c = full(sum(G));
