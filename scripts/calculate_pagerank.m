@@ -35,7 +35,7 @@ value_error_mean = mean(value_errors)
 value_error_std = std(value_errors)
 
 %Write the results to a csv file.
-output_file = 'result/pagerank_result.csv';
+output_file = 'output/pagerank_result.csv';
 header = 'Baseline PageRank;Baseline Rank';
 
 %Extend the size of the header, to also contain all results of the
@@ -47,11 +47,31 @@ end
 write_output_csv(output_file, [base_pagerank base_rank experiment_results], header);
 
 %Output mean and std of error values.
-output_file = 'result/evolution_error_summary_result.csv';
+output_file = 'output/evolution_error_summary_result.csv';
 header = 'rank_error_mean;rank_error_std;value_error_mean;value_error_std';
 write_output_csv(output_file, [rank_error_mean rank_error_std value_error_mean value_error_std], header);
 
 %Output all value and rank errors.
-output_file = 'result/evolution_error_result.csv';
+output_file = 'output/evolution_error_result.csv';
 header = 'rank_error;value_error';
 write_output_csv(output_file, [rank_errors value_errors], header);
+
+%%%% Draw plots %%%%
+%Draw some fancy box plots for the error distribution.
+boxplot(rank_errors);
+ylabel('Rank error');
+title('Boxplot of the rank error collection');
+saveas(gcf,'output/rank_error_boxplot.png');
+
+%Draw some fancy box plots for the value distribution.
+boxplot(value_errors);
+ylabel('Value error');
+title('Boxplot of the value error collection');
+saveas(gcf,'output/value_error_boxplot.png');
+
+%Draw some fancy box plots for the pagerank values.
+boxplot(base_pagerank);
+ylabel('PageRank values');
+title('Boxplot of the PageRanks');
+saveas(gcf,'output/base_page_rank_boxplot.png');
+
