@@ -1,16 +1,22 @@
+%Set which files to load.
+transition_file = 'transition.txt';
+label_file = 'label.txt';
+
 %Load the original matrix, of which the values can be found within the corresponding files.
-base_edges = load('transition.txt', '-ascii');
-base_nodes = load('label.txt', '-ascii');
+base_edges = load(transition_file, '-ascii');
+base_nodes = load(label_file, '-ascii');
 
 %Calculate the base pagerank.
 base_pagerank = sparse_power_with_teleport(base_edges, length(base_nodes));
 base_rank = get_ranking(base_pagerank);
 
 %Start the experiment.
-iterations = 10;
+iterations = 20;
 rank_errors = zeros(iterations, 1);
 value_errors = zeros(iterations, 1);
 experiment_results = {};
+experiment_pageranks = {};
+experiment_ranks = {};
 
 for i = 1:iterations 
     %Randomly remove edges.
@@ -22,11 +28,13 @@ for i = 1:iterations
     experiment_rank = get_ranking(experiment_pagerank);
     
     %Calculate the rank and value errors.
-    rank_errors(i) = get_rank_based_error(base_rank, experiment_rank);
-    value_errors(i) = get_value_based_error(base_rank, base_pagerank, experiment_pagerank);
+    rank_errors(i) = get_rank_based_error(experiment_nodes, base_rank, experiment_rank);
+    value_errors(i) = get_value_based_error(experiment_nodes, base_rank, base_pagerank, experiment_pagerank);
     
     %Set the experiment's pagerank and rank for administration purposes.
     experiment_results = [experiment_results experiment_pagerank experiment_rank];
+    experiment_pageranks = [experiment_pageranks experiment_pagerank];
+    experiment_ranks = [experiment_ranks experiment_rank];
 end
 
 rank_error_mean = mean(rank_errors)
@@ -69,9 +77,9 @@ ylabel('Value error');
 title('Boxplot of the value error collection');
 saveas(gcf,'output/value_error_boxplot.png');
 
-%Draw some fancy box plots for the pagerank values.
-boxplot(base_pagerank);
+%Draw a box plot with all experiment results side by side.
+boxplot(cell2mat(experiment_pageranks));
 ylabel('PageRank values');
-title('Boxplot of the PageRanks');
-saveas(gcf,'output/base_page_rank_boxplot.png');
+title('Boxplots of each PageRank in the uniform random edge deletion.');
+saveas(gcf,'output/uniform_random_edge_deletion_boxplots.png');
 
