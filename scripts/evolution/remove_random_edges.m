@@ -7,5 +7,5 @@ function edges = remove_random_edges(edges, count)
     random_indices = random_indices(1:count);
     
     %Remove the values at the random indices in the edges array.
-    edges(random_indices,:) = [];
+    edges(any(ismember(edges, random_indices), 2),:) = [];
 end

@@ -7,7 +7,7 @@ function [nodes, edges] = remove_random_nodes(nodes, edges, count)
     random_nodes = random_nodes(1:count);
     
     %Remove the values at the random indices in the edges array.
-    nodes(random_nodes) = [];
+    nodes(random_nodes,:) = [];
     
     %Make sure that all occurrences are also removed from the edge array.
     %Second argument in any is 2, as we want to search horizontally.
