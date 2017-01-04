@@ -23,7 +23,7 @@ for i = 1:iterations
     [experiment_nodes, experiment_edges] = remove_random_nodes(base_nodes, base_edges, 200);
     
     %Find the pagerank and rankings.
-    experiment_pagerank = sparse_power_with_teleport(experiment_edges, length(experiment_nodes));
+    experiment_pagerank = sparse_power_with_teleport(experiment_edges, length(base_nodes));
     experiment_rank = get_ranking(experiment_pagerank);
     
     %Calculate the rank and value errors.
