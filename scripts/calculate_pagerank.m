@@ -46,7 +46,12 @@ end
 
 write_output_csv(output_file, [base_pagerank base_rank experiment_results], header);
 
-%Random testing values
-%nodes = [1 2 3 4 5 6];
-%edges = [1 2; 1 3; 1 4; 1 5; 1 6; 2 1; 2 3; 2 4; 2 5; 2 6; 3 1; 3 2; 3 4; 3 5; 3 6];
-%[nodes, edges] = remove_random_nodes(nodes, edges, 1);
+%Output mean and std of error values.
+output_file = 'result/evolution_error_summary_result.csv';
+header = 'rank_error_mean;rank_error_std;value_error_mean;value_error_std';
+write_output_csv(output_file, [rank_error_mean rank_error_std value_error_mean value_error_std], header);
+
+%Output all value and rank errors.
+output_file = 'result/evolution_error_result.csv';
+header = 'rank_error;value_error';
+write_output_csv(output_file, [rank_errors value_errors], header);
