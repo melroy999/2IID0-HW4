@@ -20,11 +20,11 @@ experiment_ranks = {};
 
 for i = 1:iterations 
     %Randomly remove edges.
-    experiment_edges = remove_random_edges(base_edges, 1000);
-    experiment_nodes = base_nodes;
+    [experiment_nodes, experiment_edges] = remove_random_nodes(base_nodes, base_edges, 200);
     
-    %Find the pagerank and rankings.
-    experiment_pagerank = sparse_power_with_teleport(experiment_edges, length(experiment_nodes));
+    %Find the pagerank and rankings. Note here that we take the base nodes
+    %length, as sparse matrix intialization will throw an error otherwise.
+    experiment_pagerank = sparse_power_with_teleport(experiment_edges, length(base_nodes));
     experiment_rank = get_ranking(experiment_pagerank);
     
     %Calculate the rank and value errors.
@@ -37,10 +37,10 @@ for i = 1:iterations
     experiment_ranks = [experiment_ranks experiment_rank];
 end
 
-rank_error_mean = mean(rank_errors)
-rank_error_std = std(rank_errors)
-value_error_mean = mean(value_errors)
-value_error_std = std(value_errors)
+rank_error_mean = mean(rank_errors);
+rank_error_std = std(rank_errors);
+value_error_mean = mean(value_errors);
+value_error_std = std(value_errors);
 
 %Write the results to a csv file.
 output_file = 'output/pagerank_result.csv';
@@ -55,12 +55,12 @@ end
 write_output_csv(output_file, [base_pagerank base_rank experiment_results], header);
 
 %Output mean and std of error values.
-output_file = 'output/uniform_nodes_evolution_error_summary_result.csv';
+output_file = 'output/uniform_edge_evolution_error_summary_result.csv';
 header = 'rank_error_mean;rank_error_std;value_error_mean;value_error_std';
 write_output_csv(output_file, [rank_error_mean rank_error_std value_error_mean value_error_std], header);
 
 %Output all value and rank errors.
-output_file = 'output/uniform_nodes_evolution_error_result.csv';
+output_file = 'output/uniform_edge_evolution_error_result.csv';
 header = 'rank_error;value_error';
 write_output_csv(output_file, [rank_errors value_errors], header);
 
@@ -69,17 +69,18 @@ write_output_csv(output_file, [rank_errors value_errors], header);
 boxplot(rank_errors);
 ylabel('Rank error');
 title('Boxplot of the rank error collection');
-saveas(gcf,'output/uniform_nodes_rank_error_boxplot.png');
+saveas(gcf,'output/uniform_edge_rank_error_boxplot.png');
 
 %Draw some fancy box plots for the value distribution.
 boxplot(value_errors);
 ylabel('Value error');
 title('Boxplot of the value error collection');
-saveas(gcf,'output/uniform_nodes_value_error_boxplot.png');
+saveas(gcf,'output/uniform_edge_value_error_boxplot.png');
 
 %Draw a box plot with all experiment results side by side.
 boxplot(cell2mat(experiment_pageranks));
 ylabel('PageRank values');
-title('Boxplots of each PageRank in the uniform random edge deletion.');
-saveas(gcf,'output/uniform_nodes_boxplots.png');
+xlabel('Random runs with 1000 randomly removed edges');
+title('Boxplots of each PageRank in the uniform random edge deletion');
+saveas(gcf,'output/uniform_edge_boxplots.png');
 

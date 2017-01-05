@@ -37,10 +37,10 @@ for i = 1:iterations
     experiment_ranks = [experiment_ranks experiment_rank];
 end
 
-rank_error_mean = mean(rank_errors)
-rank_error_std = std(rank_errors)
-value_error_mean = mean(value_errors)
-value_error_std = std(value_errors)
+rank_error_mean = mean(rank_errors);
+rank_error_std = std(rank_errors);
+value_error_mean = mean(value_errors);
+value_error_std = std(value_errors);
 
 %Write the results to a csv file.
 output_file = 'output/pagerank_result.csv';
@@ -55,12 +55,12 @@ end
 write_output_csv(output_file, [base_pagerank base_rank experiment_results], header);
 
 %Output mean and std of error values.
-output_file = 'output/evolution_error_summary_result.csv';
+output_file = 'output/uniform_nodes_evolution_error_summary_result.csv';
 header = 'rank_error_mean;rank_error_std;value_error_mean;value_error_std';
 write_output_csv(output_file, [rank_error_mean rank_error_std value_error_mean value_error_std], header);
 
 %Output all value and rank errors.
-output_file = 'output/evolution_error_result.csv';
+output_file = 'output/uniform_nodes_evolution_error_result.csv';
 header = 'rank_error;value_error';
 write_output_csv(output_file, [rank_errors value_errors], header);
 
@@ -69,17 +69,18 @@ write_output_csv(output_file, [rank_errors value_errors], header);
 boxplot(rank_errors);
 ylabel('Rank error');
 title('Boxplot of the rank error collection');
-saveas(gcf,'output/rank_error_boxplot.png');
+saveas(gcf,'output/uniform_nodes_rank_error_boxplot.png');
 
 %Draw some fancy box plots for the value distribution.
 boxplot(value_errors);
 ylabel('Value error');
 title('Boxplot of the value error collection');
-saveas(gcf,'output/value_error_boxplot.png');
+saveas(gcf,'output/uniform_nodes_value_error_boxplot.png');
 
 %Draw a box plot with all experiment results side by side.
 boxplot(cell2mat(experiment_pageranks));
 ylabel('PageRank values');
-title('Boxplots of each PageRank in the uniform random edge deletion.');
-saveas(gcf,'output/uniform_random_edge_deletion_boxplots.png');
+xlabel('Random runs with 100 randomly removed nodes');
+title('Boxplots of each PageRank in the uniform random edge deletion');
+saveas(gcf,'output/uniform_nodes_boxplots.png');
 
