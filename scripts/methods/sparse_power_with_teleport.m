@@ -1,6 +1,5 @@
 %Call the power method using A as a sparse matrix with teleportation.
 function x = sparse_power_with_teleport(A, num)
-    A = sparse(A);%Make the initial version of A sparse.
     i = A(:,1);
     j = A(:,2);
 

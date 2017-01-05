@@ -5,6 +5,7 @@ label_file = 'label.txt';
 %Load the original matrix, of which the values can be found within the corresponding files.
 base_edges = load(transition_file, '-ascii');
 base_nodes = load(label_file, '-ascii');
+base_degrees = get_degree(base_edges, length(base_nodes));
 
 %Calculate the base pagerank.
 base_pagerank = sparse_power_with_teleport(base_edges, length(base_nodes));

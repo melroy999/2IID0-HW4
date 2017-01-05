@@ -5,6 +5,7 @@ label_file = 'label.txt';
 %Load the original matrix, of which the values can be found within the corresponding files.
 base_edges = load(transition_file, '-ascii');
 base_nodes = load(label_file, '-ascii');
+base_degrees = get_degree(base_edges, length(base_nodes));
 
 %List of pageranks of all 5 methods.
 pageranks = {};
@@ -38,11 +39,11 @@ ranks = [ranks rank];
 
 %Write the results to a csv file.
 output_file = 'output/pagerank_results.csv';
-header = 'eigensolver_with_teleport_pagerank;';
-header = [header 'eigensolver_without_teleport_pagerank;' 'power_with_teleport_pagerank;' 'power_without_teleport_pagerank;' 'sparse_power_with_teleport_pagerank;' 'eigensolver_with_teleport_rank;' 'eigensolver_without_teleport_rank;' 'power_with_teleport_rank;' 'power_without_teleport_rank;' 'sparse_power_with_teleport_rank'];
+header = 'degree;';
+header = [header 'eigensolver_with_teleport_pagerank;' 'eigensolver_without_teleport_pagerank;' 'power_with_teleport_pagerank;' 'power_without_teleport_pagerank;' 'sparse_power_with_teleport_pagerank;' 'eigensolver_with_teleport_rank;' 'eigensolver_without_teleport_rank;' 'power_with_teleport_rank;' 'power_without_teleport_rank;' 'sparse_power_with_teleport_rank'];
 
 %Write the output to a csv file.
-write_output_csv(output_file, [pageranks ranks], header);
+write_output_csv(output_file, [base_degrees pageranks ranks], header);
 
 %Draw a box plot with all methods side by side.
 %Does not always plot the correct thing. Sometimes you have to run twice.
