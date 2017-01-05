@@ -7,8 +7,14 @@ base_edges = load(transition_file, '-ascii');
 base_nodes = load(label_file, '-ascii');
 base_degrees = get_degree(base_edges, length(base_nodes));
 
-%Set the amount of nodes we want to delete.
-count = 200;
+%Set the constraint we want to use.
+constraint = base_degrees > 50;
+
+%Report the maximum count.
+max_count = sum(constraint)
+
+%Set the amount of edges we want to delete.
+count = 100;
 
 %Calculate the base pagerank.
 base_pagerank = sparse_power_with_teleport(base_edges, length(base_nodes));
@@ -24,7 +30,7 @@ experiment_ranks = {};
 
 for i = 1:iterations 
     %Randomly remove edges.
-    [experiment_nodes, experiment_edges] = remove_random_nodes(base_nodes, base_edges, count);
+    [experiment_nodes, experiment_edges] = remove_random_degree_nodes(base_nodes, base_edges, count, constraint);
     
     %Find the pagerank and rankings. Note here that we take the base nodes
     %length, as sparse matrix intialization will throw an error otherwise.

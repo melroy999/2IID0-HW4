@@ -7,6 +7,9 @@ base_edges = load(transition_file, '-ascii');
 base_nodes = load(label_file, '-ascii');
 base_degrees = get_degree(base_edges, length(base_nodes));
 
+%Set the amount of edges we want to delete.
+count = 1000;
+
 %Calculate the base pagerank.
 base_pagerank = sparse_power_with_teleport(base_edges, length(base_nodes));
 base_rank = get_ranking(base_pagerank);
@@ -21,7 +24,7 @@ experiment_ranks = {};
 
 for i = 1:iterations 
     %Randomly remove edges.
-    experiment_edges = remove_random_edges(base_edges, 1000);
+    experiment_edges = remove_random_edges(base_edges, count);
     experiment_nodes = base_nodes;
     
     %Find the pagerank and rankings.
