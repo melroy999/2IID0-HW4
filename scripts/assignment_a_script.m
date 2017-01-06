@@ -56,3 +56,12 @@ xlabel('PageRank values');
 title('The PageRank values for each method');
 print('output/method_boxplots','-dpng','-r300')
 
+%Plot the degrees as a bar diagram.
+histogram(base_degrees, 150)
+set(gcf,'units','pixel');
+set(gcf,'position',[0,0,960,450]);
+
+xlabel('Node degree');
+title('The node degrees in the initial graph');
+print('output/degree_diagram','-dpng','-r300')
+
