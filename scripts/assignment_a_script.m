@@ -19,6 +19,7 @@ ranks = [ranks rank];
 
 pagerank = eigensolver_without_teleport(base_edges, length(base_nodes));
 pageranks = [pageranks pagerank];
+pagerank_ewt = pagerank;
 rank = get_ranking(pagerank);
 ranks = [ranks rank];
 
@@ -54,4 +55,16 @@ set(gcf,'position',[0,0,960,450]);
 xlabel('PageRank values');
 title('The PageRank values for each method');
 print('output/method_boxplots','-dpng','-r300')
+
+min(pagerank_ewt)
+max(pagerank_ewt)
+pagerank_ewt = log(pagerank_ewt);
+
+boxplot(pagerank_ewt, {'eigensolver_without_teleport'}, 'orientation', 'horizontal');
+set(gcf,'units','pixel');
+set(gcf,'position',[0,0,960,100]);
+
+xlabel('PageRank values');
+title('The PageRank values for each method');
+print('output/method_ewt_boxplot','-dpng','-r300')
 

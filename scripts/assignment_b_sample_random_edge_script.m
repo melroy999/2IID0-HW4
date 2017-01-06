@@ -97,3 +97,13 @@ xlabel(['Random runs with ' num2str(count) ' randomly removed edges']);
 title('Boxplots of each PageRank in the uniform random edge deletion experiment');
 print(['output/uniform_edges_' num2str(iterations) '_' num2str(count) '_boxplots'],'-dpng','-r300')
 
+%Draw a box plot with all experiment results side by side, in logarithmic scale.
+boxplot(log(cell2mat(experiment_pageranks)));
+set(gcf,'units','pixel');
+set(gcf,'position',[0,0,960,300]);
+
+ylabel('Logarithms of the PageRank values');
+xlabel(['Random runs with ' num2str(count) ' randomly removed edges']);
+title('Boxplots of each PageRank in the uniform random edge deletion experiment');
+print(['output/uniform_edges_' num2str(iterations) '_' num2str(count) '_log_boxplots'],'-dpng','-r300')
+
