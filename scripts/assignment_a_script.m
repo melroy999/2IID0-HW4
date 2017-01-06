@@ -1,38 +1,38 @@
 %Set which files to load.
-transition_file = 'transition.txt';
-label_file = 'label.txt';
+transition_file = 'p2p-Gnutella08.mtx';
+%label_file = 'label.txt';
 
 %Load the original matrix, of which the values can be found within the corresponding files.
 base_edges = load(transition_file, '-ascii');
-base_nodes = load(label_file, '-ascii');
-base_degrees = get_degree(base_edges, length(base_nodes));
+%base_nodes = load(label_file, '-ascii');
+base_degrees = get_degree(base_edges, 6301);
 
 %List of pageranks of all 5 methods.
 pageranks = {};
 ranks = {};
 
 %Calculate the pageranks for each method.
-pagerank = eigensolver_with_teleport(base_edges, length(base_nodes));
+pagerank = eigensolver_with_teleport(base_edges, 6301);
 pageranks = [pageranks pagerank];
 rank = get_ranking(pagerank);
 ranks = [ranks rank];
 
-pagerank = eigensolver_without_teleport(base_edges, length(base_nodes));
+pagerank = eigensolver_without_teleport(base_edges, 6301);
 pageranks = [pageranks pagerank];
 rank = get_ranking(pagerank);
 ranks = [ranks rank];
 
-pagerank = power_with_teleport(base_edges, length(base_nodes));
+pagerank = power_with_teleport(base_edges, 6301);
 pageranks = [pageranks pagerank];
 rank = get_ranking(pagerank);
 ranks = [ranks rank];
 
-pagerank = power_without_teleport(base_edges, length(base_nodes));
+pagerank = power_without_teleport(base_edges, 6301);
 pageranks = [pageranks pagerank];
 rank = get_ranking(pagerank);
 ranks = [ranks rank];
 
-pagerank = sparse_power_with_teleport(base_edges, length(base_nodes));
+pagerank = sparse_power_with_teleport(base_edges, 6301);
 pageranks = [pageranks pagerank];
 rank = get_ranking(pagerank);
 ranks = [ranks rank];
