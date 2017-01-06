@@ -48,6 +48,10 @@ write_output_csv(output_file, [base_degrees pageranks ranks], header);
 %Draw a box plot with all methods side by side.
 %Does not always plot the correct thing. Sometimes you have to run twice.
 boxplot(cell2mat(pageranks), {'eigensolver_with_teleport' 'eigensolver_without_teleport' 'power_with_teleport' 'power_without_teleport' 'sparse_power_with_teleport'}, 'orientation', 'horizontal');
+set(gcf,'units','pixel');
+set(gcf,'position',[0,0,960,450]);
+
 xlabel('PageRank values');
 title('The PageRank values for each method');
-saveas(gcf,'output/uniform_random_edge_deletion_boxplots.png');
+print('output/method_boxplots','-dpng','-r300')
+

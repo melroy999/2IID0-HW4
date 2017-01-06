@@ -15,7 +15,7 @@ base_pagerank = sparse_power_with_teleport(base_edges, length(base_nodes));
 base_rank = get_ranking(base_pagerank);
 
 %Start the experiment.
-iterations = 20;
+iterations = 25;
 rank_errors = zeros(iterations, 1);
 value_errors = zeros(iterations, 1);
 experiment_results = {};
@@ -47,7 +47,7 @@ value_error_mean = mean(value_errors);
 value_error_std = std(value_errors);
 
 %Write the results to a csv file.
-output_file = 'output/pagerank_result.csv';
+output_file = ['output/uniform_edges_' num2str(iterations) '_' num2str(count) '_pagerank_result.csv'];
 header = 'Baseline PageRank;Baseline Rank';
 
 %Extend the size of the header, to also contain all results of the
@@ -59,32 +59,41 @@ end
 write_output_csv(output_file, [base_pagerank base_rank experiment_results], header);
 
 %Output mean and std of error values.
-output_file = 'output/uniform_nodes_evolution_error_summary_result.csv';
+output_file = ['output/uniform_edges_' num2str(iterations) '_' num2str(count) '_evolution_error_summary_result.csv'];
 header = 'rank_error_mean;rank_error_std;value_error_mean;value_error_std';
 write_output_csv(output_file, [rank_error_mean rank_error_std value_error_mean value_error_std], header);
 
 %Output all value and rank errors.
-output_file = 'output/uniform_nodes_evolution_error_result.csv';
+output_file = ['output/uniform_edges_' num2str(iterations) '_' num2str(count) '_evolution_error_result.csv'];
 header = 'rank_error;value_error';
 write_output_csv(output_file, [rank_errors value_errors], header);
 
 %%%% Draw plots %%%%
 %Draw some fancy box plots for the error distribution.
-boxplot(rank_errors);
+boxplot(rank_errors, {' '});
+set(gcf,'units','pixel');
+set(gcf,'position',[0,0,320,450]);
+
 ylabel('Rank error');
 title('Boxplot of the rank error collection');
-saveas(gcf,'output/uniform_nodes_rank_error_boxplot.png');
+print(['output/uniform_edges_' num2str(iterations) '_' num2str(count) '_rank_error_boxplot'],'-dpng','-r300')
 
 %Draw some fancy box plots for the value distribution.
-boxplot(value_errors);
+boxplot(value_errors, {' '});
+set(gcf,'units','pixel');
+set(gcf,'position',[0,0,320,450]);
+
 ylabel('Value error');
 title('Boxplot of the value error collection');
-saveas(gcf,'output/uniform_nodes_value_error_boxplot.png');
+print(['output/uniform_edges_' num2str(iterations) '_' num2str(count) '_value_error_boxplot'],'-dpng','-r300')
 
 %Draw a box plot with all experiment results side by side.
 boxplot(cell2mat(experiment_pageranks));
+set(gcf,'units','pixel');
+set(gcf,'position',[0,0,960,450]);
+
 ylabel('PageRank values');
-xlabel('Random runs with 100 randomly removed nodes');
-title('Boxplots of each PageRank in the uniform random edge deletion');
-saveas(gcf,'output/uniform_nodes_boxplots.png');
+xlabel(['Random runs with ' num2str(count) ' randomly removed edges']);
+title('Boxplots of each PageRank in the uniform random edge deletion experiment');
+print(['output/uniform_edges_' num2str(iterations) '_' num2str(count) '_boxplots'],'-dpng','-r300')
 

@@ -7,8 +7,12 @@ base_edges = load(transition_file, '-ascii');
 base_nodes = load(label_file, '-ascii');
 base_degrees = get_degree(base_edges, length(base_nodes));
 
+%Constraint cutoff;
+cutoff = 50;
+sign = 'gt';
+
 %Set the constraint we want to use.
-constraint = base_degrees > 50;
+constraint = base_degrees > cutoff;
 
 %Report the maximum count.
 max_count = sum(constraint)
@@ -53,7 +57,7 @@ value_error_mean = mean(value_errors);
 value_error_std = std(value_errors);
 
 %Write the results to a csv file.
-output_file = 'output/pagerank_result.csv';
+output_file = ['output/random_degree_nodes_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_pagerank_result.csv'];
 header = 'Baseline PageRank;Baseline Rank';
 
 %Extend the size of the header, to also contain all results of the
@@ -65,32 +69,41 @@ end
 write_output_csv(output_file, [base_pagerank base_rank experiment_results], header);
 
 %Output mean and std of error values.
-output_file = 'output/uniform_edge_evolution_error_summary_result.csv';
+output_file = ['output/random_degree_nodes_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_evolution_error_summary_result.csv'];
 header = 'rank_error_mean;rank_error_std;value_error_mean;value_error_std';
 write_output_csv(output_file, [rank_error_mean rank_error_std value_error_mean value_error_std], header);
 
 %Output all value and rank errors.
-output_file = 'output/uniform_edge_evolution_error_result.csv';
+output_file = ['output/random_degree_nodes_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_evolution_error_result.csv'];
 header = 'rank_error;value_error';
 write_output_csv(output_file, [rank_errors value_errors], header);
 
 %%%% Draw plots %%%%
 %Draw some fancy box plots for the error distribution.
-boxplot(rank_errors);
+boxplot(rank_errors, {' '});
+set(gcf,'units','pixel');
+set(gcf,'position',[0,0,320,450]);
+
 ylabel('Rank error');
 title('Boxplot of the rank error collection');
-saveas(gcf,'output/uniform_edge_rank_error_boxplot.png');
+print(['output/random_degree_nodes_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_rank_error_boxplot'],'-dpng','-r300')
 
 %Draw some fancy box plots for the value distribution.
-boxplot(value_errors);
+boxplot(value_errors, {' '});
+set(gcf,'units','pixel');
+set(gcf,'position',[0,0,320,450]);
+
 ylabel('Value error');
 title('Boxplot of the value error collection');
-saveas(gcf,'output/uniform_edge_value_error_boxplot.png');
+print(['output/random_degree_nodes_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_value_error_boxplot'],'-dpng','-r300')
 
 %Draw a box plot with all experiment results side by side.
 boxplot(cell2mat(experiment_pageranks));
+set(gcf,'units','pixel');
+set(gcf,'position',[0,0,960,450]);
+
 ylabel('PageRank values');
-xlabel('Random runs with 1000 randomly removed edges');
-title('Boxplots of each PageRank in the uniform random edge deletion');
-saveas(gcf,'output/uniform_edge_boxplots.png');
+xlabel(['Random runs with ' num2str(count) ' randomly removed edges']);
+title('Boxplots of each PageRank in the random degree node deletion experiment');
+print(['output/random_degree_nodes_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_boxplots'],'-dpng','-r300')
 
