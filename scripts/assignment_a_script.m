@@ -1,19 +1,20 @@
 %Set which files to load.
-transition_file = 'transition.txt';
-label_file = 'label.txt';
+transition_file = 'p2p-Gnutella08.mtx';
 
 %Load the original matrix, of which the values can be found within the corresponding files.
 base_edges = load(transition_file, '-ascii');
-base_nodes = load(label_file, '-ascii');
+base_nodes = [1:max(base_edges(:))].';
 base_degrees = get_degree(base_edges, length(base_nodes));
 
 %List of pageranks of all 5 methods.
 pageranks = {};
+pageranks_without_ewt = {};
 ranks = {};
 
 %Calculate the pageranks for each method.
 pagerank = eigensolver_with_teleport(base_edges, length(base_nodes));
 pageranks = [pageranks pagerank];
+pageranks_without_ewt = [pageranks_without_ewt pagerank];
 rank = get_ranking(pagerank);
 ranks = [ranks rank];
 
@@ -25,16 +26,19 @@ ranks = [ranks rank];
 
 pagerank = power_with_teleport(base_edges, length(base_nodes));
 pageranks = [pageranks pagerank];
+pageranks_without_ewt = [pageranks_without_ewt pagerank];
 rank = get_ranking(pagerank);
 ranks = [ranks rank];
 
 pagerank = power_without_teleport(base_edges, length(base_nodes));
 pageranks = [pageranks pagerank];
+pageranks_without_ewt = [pageranks_without_ewt pagerank];
 rank = get_ranking(pagerank);
 ranks = [ranks rank];
 
 pagerank = sparse_power_with_teleport(base_edges, length(base_nodes));
 pageranks = [pageranks pagerank];
+pageranks_without_ewt = [pageranks_without_ewt pagerank];
 rank = get_ranking(pagerank);
 ranks = [ranks rank];
 
@@ -64,4 +68,7 @@ set(gcf,'position',[0,0,960,450]);
 xlabel('Node degree');
 title('The node degrees in the initial graph');
 print('output/degree_diagram','-dpng','-r300')
+
+convert = cell2mat(pageranks);
+
 
