@@ -1,5 +1,5 @@
 %Set which files to load.
-transition_file = 'transition.txt';
+transition_file = 'California.mtx';
 
 %Load the original matrix, of which the values can be found within the corresponding files.
 base_edges = load(transition_file, '-ascii');
@@ -7,14 +7,20 @@ base_nodes = [1:max(base_edges(:))].';
 base_degrees = get_degree(base_edges, length(base_nodes));
 
 %Constraint cutoff;
-cutoff = 300;
+cutoff = max(base_degrees) * 0.4;
 sign = 'gt';
 
 %Set the constraint we want to use.
 constraint = base_degrees > cutoff;
 
+%The percentage of the total size of the transitions that are removed in the experiment.
+edge_removal_percentages = [0.01, 0.05, 0.1];
+
 %Iterate over all amount of edges we want to delete.
-for count = [100, 200, 500, 1000]
+for percent = edge_removal_percentages
+    %Get the actual count
+    count = floor(percent * length(base_edges));
+    
     %Calculate the base pagerank.
     base_pagerank = sparse_power_with_teleport(base_edges, length(base_nodes));
     base_rank = get_ranking(base_pagerank);
@@ -52,7 +58,7 @@ for count = [100, 200, 500, 1000]
     value_error_std = std(value_errors);
 
     %Write the results to a csv file.
-    output_file = ['output/random_degree_edges_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_pagerank_result.csv'];
+    output_file = ['output/random_degree_edges_' num2str(iterations) '_' num2str(percent*100) '_' sign '_' num2str(round(cutoff)) '_pagerank_result.csv'];
     header = 'Baseline PageRank;Baseline Rank';
 
     %Extend the size of the header, to also contain all results of the
@@ -64,33 +70,35 @@ for count = [100, 200, 500, 1000]
     write_output_csv(output_file, [base_pagerank base_rank experiment_results], header);
 
     %Output mean and std of error values.
-    output_file = ['output/random_degree_edges_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_evolution_error_summary_result.csv'];
+    output_file = ['output/random_degree_edges_' num2str(iterations) '_' num2str(percent*100) '_' sign '_' num2str(round(cutoff)) '_evolution_error_summary_result.csv'];
     header = 'rank_error_mean;rank_error_std;value_error_mean;value_error_std';
     write_output_csv(output_file, [rank_error_mean rank_error_std value_error_mean value_error_std], header);
 
     %Output all value and rank errors.
-    output_file = ['output/random_degree_edges_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_evolution_error_result.csv'];
+    output_file = ['output/random_degree_edges_' num2str(iterations) '_' num2str(percent*100) '_' sign '_' num2str(round(cutoff)) '_evolution_error_result.csv'];
     header = 'rank_error;value_error';
     write_output_csv(output_file, [rank_errors value_errors], header);
 
     %%%% Draw plots %%%%
     %Draw some fancy box plots for the error distribution.
-    boxplot(rank_errors, {' '});
+    boxplot(rank_errors, {' '}, 'orientation', 'horizontal');
     set(gcf,'units','pixel');
-    set(gcf,'position',[0,0,320,450]);
-
-    ylabel('Rank error');
-    title('Boxplot of the rank error collection');
-    print(['output/random_degree_edges_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_rank_error_boxplot'],'-dpng','-r300')
+    xlabel(['Mean: ' num2str(rank_error_mean) ', Standard deviation: ' num2str(rank_error_std)  ', Min: '  num2str(rank_error_min)  ', Max: '  num2str(rank_error_max)])
+    xlim([0 1500])
+    set(gcf,'position',[0,0,960,125]);
+    
+    title(['Boxplot of the rank error (' num2str(percent*100) ' percent)']);
+    print(['output/random_degree_edges_' num2str(iterations) '_' num2str(percent*100) '_' sign '_' num2str(round(cutoff)) '_rank_error_boxplot'],'-dpng','-r300')
 
     %Draw some fancy box plots for the value distribution.
-    boxplot(value_errors, {' '});
+    boxplot(value_errors, {' '}, 'orientation', 'horizontal');
     set(gcf,'units','pixel');
-    set(gcf,'position',[0,0,320,450]);
-
-    ylabel('Value error');
-    title('Boxplot of the value error collection');
-    print(['output/random_degree_edges_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_value_error_boxplot'],'-dpng','-r300')
+    xlabel(['Mean: ' num2str(value_error_mean) ', Standard deviation: ' num2str(value_error_std)  ', Min: '  num2str(value_error_min)  ', Max: '  num2str(value_error_max)])
+    xlim([0 0.0045])
+    set(gcf,'position',[0,0,960,125]);
+    
+    title(['Boxplot of the value error (' num2str(percent*100) ' percent)']);
+    print(['output/random_degree_edges_' num2str(iterations) '_' num2str(percent*100) '_' sign '_' num2str(round(cutoff)) '_value_error_boxplot'],'-dpng','-r300')
 
     %Draw a box plot with all experiment results side by side.
     boxplot(cell2mat(experiment_pageranks));
@@ -98,17 +106,17 @@ for count = [100, 200, 500, 1000]
     set(gcf,'position',[0,0,960,450]);
 
     ylabel('PageRank values');
-    xlabel(['Random runs with ' num2str(count) ' randomly removed edges']);
+    xlabel(['Random runs with ' num2str(percent*100) ' percent randomly removed edges']);
     title('Boxplots of each PageRank in the random degree edge deletion experiment');
-    print(['output/random_degree_edges_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_boxplots'],'-dpng','-r300')
+    print(['output/random_degree_edges_' num2str(iterations) '_' num2str(percent*100) '_' sign '_' num2str(round(cutoff)) '_boxplots'],'-dpng','-r300')
 
     %Draw a box plot with all experiment results side by side, in logarithmic scale.
     boxplot(log(cell2mat(experiment_pageranks)));
     set(gcf,'units','pixel');
     set(gcf,'position',[0,0,960,300]);
 
-    ylabel('Logarithms of the PageRank values');
-    xlabel(['Random runs with ' num2str(count) ' randomly removed edges']);
-    title('Boxplots of each PageRank in the random degree edge deletion experiment');
-    print(['output/random_degree_edges_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_log_boxplots'],'-dpng','-r300')
+    ylabel('PageRank values (log scale)');
+    xlabel(['Random runs with ' num2str(percent*100) ' percent randomly removed edges']);
+    title(['PageRanks in experiment (' num2str(percent*100) ' percent)']);
+    print(['output/random_degree_edges_' num2str(iterations) '_' num2str(percent*100) '_' sign '_' num2str(round(cutoff)) '_log_boxplots'],'-dpng','-r300')
 end
