@@ -1,11 +1,3 @@
-%Set which files to load.
-transition_file = 'transition.txt';
-
-%Load the original matrix, of which the values can be found within the corresponding files.
-base_edges = load(transition_file, '-ascii');
-base_nodes = [1:max(base_edges(:))].';
-base_degrees = get_degree(base_edges, length(base_nodes));
-
 %Constraint cutoff;
 cutoff = 50;
 sign = 'gt';
@@ -13,11 +5,23 @@ sign = 'gt';
 %Set the constraint we want to use.
 constraint = base_degrees > cutoff;
 
+%The percentage of the total size of the transitions that are removed in the experiment.
+node_removal_percentages = [0.1 0.25, 0.5, 1];
+
 %Report the maximum count.
-max_count = sum(constraint)
+max_count = sum(constraint);
+
+%The sub folder to place these results in.
+sub_folder = '/degree_node_removal/';
+
+%Make a directory for the results of this method.
+mkdir([output_folder sub_folder]);
 
 %Iterate over all amount of edges we want to delete.
-for count = [50, 100, 200]
+for percent = node_removal_percentages
+    %Get the actual count, which should consider the max count!
+    count = floor(percent * max_count);
+    
     %Calculate the base pagerank.
     base_pagerank = sparse_power_with_teleport(base_edges, length(base_nodes));
     base_rank = get_ranking(base_pagerank);
@@ -51,11 +55,18 @@ for count = [50, 100, 200]
 
     rank_error_mean = mean(rank_errors);
     rank_error_std = std(rank_errors);
+    rank_error_min = min(rank_errors);
+    rank_error_max = max(rank_errors);
     value_error_mean = mean(value_errors);
     value_error_std = std(value_errors);
+    value_error_min = min(value_errors);
+    value_error_max = max(value_errors);
+    
+     %The experiment information to be stored in the file name.
+    file_code = [num2str(iterations) '_' num2str(percent) '_' sign '_' num2str(round(cutoff))];
 
     %Write the results to a csv file.
-    output_file = ['output/random_degree_nodes_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_pagerank_result.csv'];
+    output_file = [output_folder sub_folder 'pagerank_result_' file_code '.csv'];
     header = 'Baseline PageRank;Baseline Rank';
 
     %Extend the size of the header, to also contain all results of the
@@ -67,51 +78,84 @@ for count = [50, 100, 200]
     write_output_csv(output_file, [base_pagerank base_rank experiment_results], header);
 
     %Output mean and std of error values.
-    output_file = ['output/random_degree_nodes_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_evolution_error_summary_result.csv'];
+    output_file = [output_folder sub_folder 'evolution_error_summary_result_' file_code '.csv'];
     header = 'rank_error_mean;rank_error_std;value_error_mean;value_error_std';
     write_output_csv(output_file, [rank_error_mean rank_error_std value_error_mean value_error_std], header);
 
     %Output all value and rank errors.
-    output_file = ['output/random_degree_nodes_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_evolution_error_result.csv'];
+    output_file = [output_folder sub_folder 'evolution_error_result_' file_code '.csv'];
     header = 'rank_error;value_error';
     write_output_csv(output_file, [rank_errors value_errors], header);
 
     %%%% Draw plots %%%%
     %Draw some fancy box plots for the error distribution.
-    boxplot(rank_errors, {' '});
+    figure;
+    set(gcf,'visible','off')
+    set(gcf, 'renderer', 'zbuffer')
+   
+    boxplot(rank_errors, {' '}, 'orientation', 'horizontal');
     set(gcf,'units','pixel');
-    set(gcf,'position',[0,0,320,450]);
+    xlabel(['Mean: ' num2str(rank_error_mean) ', Standard deviation: ' num2str(rank_error_std)  ', Min: '  num2str(rank_error_min)  ', Max: '  num2str(rank_error_max)])
+    xlim([0 10000])
+    set(gcf,'position',[0,0,960,125]);
 
-    ylabel('Rank error');
-    title('Boxplot of the rank error collection');
-    print(['output/random_degree_nodes_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_rank_error_boxplot'],'-dpng','-r300')
+    title(['Boxplot of the rank error (' num2str(percent) ' percent)']);
+    print([output_folder sub_folder 'rank_error_boxplots_' file_code],'-dpng','-r300')
 
     %Draw some fancy box plots for the value distribution.
-    boxplot(value_errors, {' '});
+    figure;
+    set(gcf,'visible','off')
+    set(gcf, 'renderer', 'zbuffer')
+    
+    boxplot(value_errors, {' '}, 'orientation', 'horizontal');
     set(gcf,'units','pixel');
-    set(gcf,'position',[0,0,320,450]);
-
-    ylabel('Value error');
-    title('Boxplot of the value error collection');
-    print(['output/random_degree_nodes_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_value_error_boxplot'],'-dpng','-r300')
+    xlabel(['Mean: ' num2str(value_error_mean) ', Standard deviation: ' num2str(value_error_std)  ', Min: '  num2str(value_error_min)  ', Max: '  num2str(value_error_max)])
+    xlim([0 0.015])
+    set(gcf,'position',[0,0,960,125]);
+    
+    title(['Boxplot of the value error (' num2str(percent) ' percent)']);
+    print([output_folder sub_folder 'value_error_boxplot_' file_code],'-dpng','-r300')
 
     %Draw a box plot with all experiment results side by side.
+    figure;
+    set(gcf,'visible','off')
+    
     boxplot(cell2mat(experiment_pageranks));
-    set(gcf,'units','pixel');
-    set(gcf,'position',[0,0,960,450]);
+    set(gcf,'position',[0,0,960,250]);
+    set(gcf, 'renderer', 'zbuffer')
 
     ylabel('PageRank values');
-    xlabel(['Random runs with ' num2str(count) ' randomly removed nodes']);
-    title('Boxplots of each PageRank in the random degree node deletion experiment');
-    print(['output/random_degree_nodes_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_boxplots'],'-dpng','-r300')
+    xlabel(['Random runs with ' num2str(count) ' (' num2str(percent) ' percent) randomly removed nodes']);
+    title(['PageRanks in experiment (' num2str(percent) ' percent)']);
+    print([output_folder sub_folder 'pagerank_boxplots' file_code],'-dpng','-r300')
 
     %Draw a box plot with all experiment results side by side, in logarithmic scale.
-    boxplot(log(cell2mat(experiment_pageranks)));
+    figure;
+    set(gcf,'visible','off')
+    
+    boxplot(cell2mat(experiment_pageranks));
     set(gcf,'units','pixel');
-    set(gcf,'position',[0,0,960,300]);
+    set(gca,'YScale','log')
+    ylim([0 0.1])
+    set(gca,'YTick',[0 0.0005 0.001 0.005 0.01 0.05, 0.1])
+    set(gcf,'position',[0,0,960,250]);
 
-    ylabel('Logarithms of the PageRank values');
-    xlabel(['Random runs with ' num2str(count) ' randomly removed nodes']);
-    title('Boxplots of each PageRank in the random degree node deletion experiment');
-    print(['output/random_degree_nodes_' num2str(iterations) '_' num2str(count) '_' sign '_' num2str(cutoff) '_log_boxplots'],'-dpng','-r300')
+    ylabel('PageRank values (log scale)');
+    xlabel(['Random runs with ' num2str(count) ' (' num2str(percent) ' percent) randomly removed nodes']);
+    title(['PageRanks in experiment (' num2str(percent) ' percent)']);
+    print([output_folder sub_folder 'pagerank_log_boxplots_' file_code],'-dpng','-r300')
+    
+    %Draw a box plot with all experiment degrees side by side.
+    figure;
+    set(gcf,'visible','off')
+
+    boxplot(cell2mat(experiment_degrees));
+    set(gcf,'units','pixel');
+    ylim([0 max(base_degrees)])
+    set(gcf,'position',[0,0,960,250]);
+
+    ylabel('Node degree');
+    xlabel(['Random runs with ' num2str(count) ' (' num2str(percent) ' percent) randomly removed nodes']);
+    title(['Node degrees in experiment (' num2str(percent) ' percent)']);
+    print([output_folder sub_folder 'degree_boxplots_' file_code],'-dpng','-r300')
 end

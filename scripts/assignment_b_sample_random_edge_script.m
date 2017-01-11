@@ -1,13 +1,11 @@
-%Set which files to load.
-transition_file = 'p2p-Gnutella08.mtx';
-
-%Load the original matrix, of which the values can be found within the corresponding files.
-base_edges = load(transition_file, '-ascii');
-base_nodes = [1:max(base_edges(:))].';
-base_degrees = get_degree(base_edges, length(base_nodes));
-
 %The percentage of the total size of the transitions that are removed in the experiment.
 edge_removal_percentages = [0.05, 0.1, 0.2, 0.5];
+
+%The sub folder to place these results in.
+sub_folder = '/uniform_edge_removal/';
+
+%Make a directory for the results of this method.
+mkdir([output_folder sub_folder]);
 
 %Iterate over all amount of edges we want to delete.
 for percent = edge_removal_percentages
@@ -58,9 +56,12 @@ for percent = edge_removal_percentages
     value_error_std = std(value_errors);
     value_error_min = min(value_errors);
     value_error_max = max(value_errors);
-
+    
+    %The experiment information to be stored in the file name.
+    file_code = [num2str(iterations) '_' num2str(count)];
+    
     %Write the results to a csv file.
-    output_file = ['output/pagerank_result_' num2str(iterations) '_' num2str(count) '_uniform_edges.csv'];
+    output_file = [output_folder sub_folder 'pagerank_result_' file_code '.csv'];
     header = 'Baseline PageRank;Baseline Rank';
 
     %Extend the size of the header, to also contain all results of the
@@ -72,12 +73,12 @@ for percent = edge_removal_percentages
     write_output_csv(output_file, [base_pagerank base_rank experiment_results], header);
 
     %Output mean and std of error values.
-    output_file = ['output/evolution_error_summary_result_' num2str(iterations) '_' num2str(count) '_uniform_edges.csv'];
+    output_file = [output_folder sub_folder 'evolution_error_summary_result_' file_code '.csv'];
     header = 'rank_error_mean;rank_error_std;value_error_mean;value_error_std';
     write_output_csv(output_file, [rank_error_mean rank_error_std value_error_mean value_error_std], header);
 
     %Output all value and rank errors.
-    output_file = ['output/evolution_error_result_' num2str(iterations) '_' num2str(count) '_uniform_edges.csv'];
+    output_file = [output_folder sub_folder 'evolution_error_result_' file_code '.csv'];
     header = 'rank_error;value_error';
     write_output_csv(output_file, [rank_errors value_errors], header);
 
@@ -94,7 +95,7 @@ for percent = edge_removal_percentages
     set(gcf,'position',[0,0,960,125]);
 
     title(['Boxplot of the rank error (' num2str(percent) ' percent)']);
-    print(['output/rank_error_boxplots_' num2str(iterations) '_' num2str(count) '_uniform_edges'],'-dpng','-r300')
+    print([output_folder sub_folder 'rank_error_boxplots_' file_code],'-dpng','-r300')
 
     %Draw some fancy box plots for the value distribution.
     figure;
@@ -108,7 +109,7 @@ for percent = edge_removal_percentages
     set(gcf,'position',[0,0,960,125]);
     
     title(['Boxplot of the value error (' num2str(percent) ' percent)']);
-    print(['output/value_error_boxplot_' num2str(iterations) '_' num2str(count) '_uniform_edges'],'-dpng','-r300')
+    print([output_folder sub_folder 'value_error_boxplot_' file_code],'-dpng','-r300')
 
     %Draw a box plot with all experiment results side by side.
     figure;
@@ -121,7 +122,7 @@ for percent = edge_removal_percentages
     ylabel('PageRank values');
     xlabel(['Random runs with ' num2str(count) ' (' num2str(percent) ' percent) randomly removed edges']);
     title(['PageRanks in experiment (' num2str(percent) ' percent)']);
-    print(['output/boxplots_' num2str(iterations) '_' num2str(count) '_uniform_edges'],'-dpng','-r300')
+    print([output_folder sub_folder 'pagerank_boxplots_' file_code],'-dpng','-r300')
 
     %Draw a box plot with all experiment results side by side, in logarithmic scale.
     figure;
@@ -137,7 +138,7 @@ for percent = edge_removal_percentages
     ylabel('PageRank values (log scale)');
     xlabel(['Random runs with ' num2str(count) ' (' num2str(percent) ' percent) randomly removed edges']);
     title(['PageRanks in experiment (' num2str(percent) ' percent)']);
-    print(['output/log_boxplots_' num2str(iterations) '_' num2str(count) '_uniform_edges'],'-dpng','-r300')
+    print([output_folder sub_folder 'pagerank_log_boxplots_' file_code],'-dpng','-r300')
     
     %Draw a box plot with all experiment degrees side by side.
     figure;
@@ -151,6 +152,6 @@ for percent = edge_removal_percentages
     ylabel('Node degree');
     xlabel(['Random runs with ' num2str(count) ' (' num2str(percent) ' percent) randomly removed edges']);
     title(['Node degrees in experiment (' num2str(percent) ' percent)']);
-    print(['output/degree_boxplots_' num2str(iterations) '_' num2str(count) '_uniform_edges'],'-dpng','-r300')
+    print([output_folder sub_folder 'degree_boxplots_' file_code],'-dpng','-r300')
 end
 
