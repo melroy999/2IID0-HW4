@@ -1,4 +1,0 @@
-assignment_b_sample_degree_random_edge_script
-assignment_b_sample_degree_random_node_script
-assignment_b_sample_random_edge_script
-assignment_b_sample_random_node_script

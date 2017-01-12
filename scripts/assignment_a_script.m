@@ -65,7 +65,7 @@ set(gcf,'position',[0,0,960,450]);
 set(gca,'XScale','log')
 
 xlabel('PageRank values');
-title('The PageRank values for each method (minus eigensolver_without_teleport)');
+title('The PageRank values for each method (minus eigensolver without teleport)');
 print([output_folder '/assignment_1/method_boxplots_minus_enwt'],'-dpng','-r300')
 
 %Draw the enwt boxplot individually.
@@ -76,7 +76,7 @@ try
     set(gca,'XScale','log')
 
     xlabel('PageRank values');
-    title('The PageRank values for eigensolver_without_teleport');
+    title('The PageRank values for eigensolver without teleport');
     print([output_folder '/assignment_1/method_boxplot_enwt'],'-dpng','-r300')
 catch
     disp('An error occurred while drawing the enwt boxplot.');

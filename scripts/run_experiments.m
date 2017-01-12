@@ -5,6 +5,7 @@ mkdir('output');
 
 %Get the list of data files.
 dataset_files = {'polblogs', 'p2p-Gnutella08', 'California'};
+%dataset_files = {'California'};
 
 %Iterate over all file names.
 for dataset_name = dataset_files
