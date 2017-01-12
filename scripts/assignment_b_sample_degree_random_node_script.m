@@ -36,6 +36,7 @@ for ratio = edge_removal_ratios
     experiment_results = {};
     experiment_pageranks = {};
     experiment_ranks = {};
+    experiment_degrees = {};
 
     for i = 1:iterations 
         %Randomly remove edges.
@@ -54,6 +55,7 @@ for ratio = edge_removal_ratios
         experiment_results = [experiment_results experiment_pagerank experiment_rank];
         experiment_pageranks = [experiment_pageranks experiment_pagerank];
         experiment_ranks = [experiment_ranks experiment_rank];
+        experiment_degrees = [experiment_degrees get_degree(experiment_edges, length(base_nodes))];
     end
     
     %The experiment information to be stored in the file name.

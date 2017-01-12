@@ -42,6 +42,9 @@ write_output_csv(output_file, [base_degrees pageranks ranks], strjoin(['degree;'
 
 %%%Create the figures.
 %Write all the results to a single boxplot. This may error.
+figure;
+set(gcf,'visible','off')
+
 try
     boxplot(pageranks, method_names, 'orientation', 'horizontal');
     set(gcf,'units','pixel');
@@ -59,6 +62,9 @@ end
 
 %Write all results to a single boxplot, with the exception of
 %eigensolver_without_teleport:
+figure;
+set(gcf,'visible','off')
+
 boxplot(pageranks(:,[1, 3, 4, 5]), method_names([1, 3, 4, 5]), 'orientation', 'horizontal');
 set(gcf,'units','pixel');
 set(gcf,'position',[0,0,960,450]);
@@ -69,6 +75,9 @@ title('The PageRank values for each method (minus eigensolver without teleport)'
 print([output_folder '/assignment_1/method_boxplots_minus_enwt'],'-dpng','-r300')
 
 %Draw the enwt boxplot individually.
+figure;
+set(gcf,'visible','off')
+
 try
     boxplot(enwt_pagerank, method_names(2), 'orientation', 'horizontal');
     set(gcf,'units','pixel');
@@ -84,6 +93,9 @@ catch
 end
 
 %Plot the degrees as a bar diagram.
+figure;
+set(gcf,'visible','off')
+
 histogram(base_degrees, 150)
 set(gcf,'units','pixel');
 set(gcf,'position',[0,0,960,450]);
