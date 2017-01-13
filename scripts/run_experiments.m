@@ -5,7 +5,6 @@ mkdir('output');
 
 %Get the list of data files.
 dataset_files = {'polblogs', 'p2p-Gnutella08', 'California'};
-%dataset_files = {'California'};
 
 %Iterate over all file names.
 for dataset_name = dataset_files
@@ -28,14 +27,14 @@ for dataset_name = dataset_files
     assignment_a_script;
     
     %Run the uniform edge removal experiment.
-    %assignment_b_sample_random_edge_script;
+    assignment_b_sample_random_edge_script;
     
     %Run the uniform node removal experiment.
-    %assignment_b_sample_random_node_script;
+    assignment_b_sample_random_node_script;
     
     %Run the degree edge removal experiment.
     assignment_b_sample_degree_random_edge_script;
     
     %Run the degree node removal experiment.
-    %assignment_b_sample_degree_random_node_script;
+    assignment_b_sample_degree_random_node_script;
 end

@@ -1,12 +1,14 @@
-%Constraint cutoff;
-cutoff = 50;
-sign = 'gt';
-
 %Set the constraint we want to use.
-constraint = base_degrees > cutoff;
+%cutoff = prctile(base_degrees, 95);
+%sign = 'gt';
+%constraint = base_degrees > cutoff;
+
+cutoff = 10;
+sign = 'lt';
+constraint = base_degrees < cutoff;
 
 %The ratioage of the total size of the transitions that are removed in the experiment.
-edge_removal_ratios = [0.1 0.25, 0.5, 1];
+edge_removal_ratios = [0.05, 0.1, 0.2, 0.5];
 
 %Report the maximum count.
 max_count = sum(constraint);
@@ -16,6 +18,9 @@ sub_folder = '/degree_node_removal/';
 
 %Make a directory for the results of this method.
 mkdir([output_folder sub_folder]);
+
+%Variable holding the complete error values summary table.
+error_summaries = {};
 
 %Iterate over all amount of edges we want to delete.
 for ratio = edge_removal_ratios
@@ -48,8 +53,8 @@ for ratio = edge_removal_ratios
         experiment_rank = get_ranking(experiment_pagerank);
 
         %Calculate the rank and value errors.
-        rank_errors(i) = get_rank_based_error(experiment_nodes, base_rank, experiment_rank);
-        value_errors(i) = get_value_based_error(experiment_nodes, base_rank, base_pagerank, experiment_pagerank);
+        rank_errors(i) = get_rank_based_error(experiment_nodes, base_pagerank, experiment_pagerank) / num;
+        value_errors(i) = get_value_based_error(experiment_nodes, base_pagerank, experiment_pagerank) / num;
 
         %Set the experiment's pagerank and rank for administration purposes.
         experiment_results = [experiment_results experiment_pagerank experiment_rank];
@@ -71,9 +76,8 @@ for ratio = edge_removal_ratios
     value_error_min = min(value_errors);
     value_error_max = max(value_errors);
     
-    %Get information about the rank sum.
-    rank_sum_array = sum(cell2mat(experiment_ranks)).';
-    rank_sum_mean = mean(rank_sum_array);
+    %Append the new error values to the error summaries.
+    error_summaries = [error_summaries; ratio rank_error_mean rank_error_std value_error_mean value_error_std];
     
     %Write the results to a csv file.
     output_file = [output_folder sub_folder 'pagerank_result_' file_code '.csv'];
@@ -86,21 +90,11 @@ for ratio = edge_removal_ratios
     end
 
     write_output_csv(output_file, [base_pagerank base_rank experiment_results], header);
-
-    %Output mean and std of error values.
-    output_file = [output_folder sub_folder 'evolution_error_summary_result_' file_code '.csv'];
-    header = 'rank_error_mean;rank_error_std;value_error_mean;value_error_std;rank_sum_mean';
-    write_output_csv(output_file, [rank_error_mean rank_error_std value_error_mean value_error_std rank_sum_mean], header);
-
-    %Output the rank sum values.
-    output_file = [output_folder sub_folder 'rank_sum_' file_code '.csv'];
-    header = 'Rank_sums';
-    write_output_csv(output_file, [rank_sum_array], header);
     
     %Output all value and rank errors, with sum information.
     output_file = [output_folder sub_folder 'evolution_error_result_' file_code '.csv'];
-    header = 'rank_error;value_error;rank_sum';
-    write_output_csv(output_file, [rank_errors value_errors rank_sum_array], header);
+    header = 'rank_error;value_error';
+    write_output_csv(output_file, [rank_errors value_errors], header);
 
     %%%% Draw plots %%%%
     %Draw some fancy box plots for the error distribution.
@@ -204,7 +198,7 @@ for ratio = edge_removal_ratios
    
     boxplot(rank_errors, {' '}, 'orientation', 'horizontal');
     set(gcf,'units','pixel');
-    xlabel(['Mean: ' num2str(rank_error_mean) ', Standard deviation: ' num2str(rank_error_std)  ', Min: '  num2str(rank_error_min)  ', Max: '  num2str(rank_error_max) ', Mean rank sum: ' num2str(rank_sum_mean)])
+    xlabel(['Mean: ' num2str(rank_error_mean) ', Standard deviation: ' num2str(rank_error_std)  ', Min: '  num2str(rank_error_min)  ', Max: '  num2str(rank_error_max)])
 
     title(['Boxplot of the rank error']);
     
@@ -223,3 +217,9 @@ for ratio = edge_removal_ratios
     
     print([output_folder sub_folder 'collective_' file_code],'-dpng','-r300')
 end
+
+%Output the complete table of error values.
+output_file = [output_folder sub_folder 'evolution_error_summary_results_' file_code '.csv'];
+header = 'removal;rank_error_mean;rank_error_std;value_error_mean;value_error_std';
+write_output_csv(output_file, error_summaries, header);
+
